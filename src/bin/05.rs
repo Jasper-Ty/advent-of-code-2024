@@ -4,35 +4,29 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::cmp::Ordering;
 
-// modified mergesort
-fn fast_check<F>(list: Vec<u32>, cmp: F) -> bool
+// checks if list is sorted w/ mergesort strategy
+fn fast_check<F>(list: &Vec<u32>, cmp: F) -> bool
 where
     F: Fn(u32, u32) -> bool
 {
-    let n = list.len();
-
     let mut size = 1;
-    while size < n {
-        for pair in list.chunks(size*2) {
-            if pair.len() < size {
-                continue;
-            }
-            let left = &pair[..size];
-            let right = &pair[size..];
-        }
+
+    while list.chunks(size*2)
+            .filter(|pair| pair.len() >= size)
+            .all(|pair|
+                (&pair[..size])
+                    .iter()
+                    .zip(&pair[size..])
+                    .all(|(x, y)| cmp(*x, *y))
+            ) && size < list.len() {
         size *= 2;
     }
 
-    false
+    size >= list.len()
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
     let mut rules: HashMap<u32, HashSet<u32>> = HashMap::new();
-
-    let bytes: Vec<u8> = input
-        .lines()
-        .flat_map(str::bytes)
-        .collect();
 
     let mut slice = input.as_bytes();
     loop {
@@ -48,7 +42,20 @@ pub fn part_one(input: &str) -> Option<u32> {
             _ => break
         }
     }
-    None
+
+    let sum = input.lines()
+        .skip_while(|line| !line.is_empty())
+        .skip(1)
+        .map(|line| {
+            line.split(',')
+                .filter_map(|x| x.parse::<u32>().ok())
+                .collect::<Vec<u32>>()
+        })
+        .filter(|list| fast_check(list, |x, y| rules[&x].contains(&y)))
+        .map(|list| list[list.len()/2])
+        .fold(0u32, |acc, x| acc + x);
+
+    Some(sum)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
@@ -82,25 +89,7 @@ pub fn part_two(input: &str) -> Option<u32> {
                 .collect::<Vec<u32>>()
         })
         .filter(|list| {
-            let map: HashMap<u32, usize> = list
-                .iter()
-                .enumerate()
-                .map(|(x, y)| (*y, x))
-                .collect();
-            !list
-                .iter()
-                .enumerate()
-                .all(|(idx, x)|
-                    rules_lt[x]
-                        .iter()
-                        .filter_map(|y| map.get(y))
-                        .all(|idy| idx < *idy)
-                    &&
-                    rules_gt[x]
-                        .iter()
-                        .filter_map(|y| map.get(y))
-                        .all(|idy| idx > *idy)
-                )
+            !fast_check(list, |x, y| rules_lt[&x].contains(&y))
         })
         .map(|mut list| {
             list.sort_by(|x, y| if rules_lt[x].contains(y) { Ordering::Less } else { Ordering::Equal });
