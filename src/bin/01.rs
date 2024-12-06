@@ -16,39 +16,30 @@ pub fn part_one(input: &str) -> Option<u32> {
     left.sort();
     right.sort();
 
-    let zipped = left.into_iter().zip(right);
+    let sum = left
+        .into_iter()
+        .zip(right)
+        .map(|(l, r)| l.abs_diff(r))
+        .sum();
 
-    let res = zipped.fold(0u32, |sum, (left, right)| sum + left.abs_diff(right));
-
-    Some(res)
+    Some(sum)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let mut left: HashMap<u32, usize> = HashMap::new();
-    let mut right: HashMap<u32, usize> = HashMap::new();
-
-    let insert = |x: u32, map: &mut HashMap<u32, usize>| match map.get_mut(&x) {
-        Some(x) => *x += 1,
-        None => {
-            map.insert(x, 1);
-        }
-    };
+    let mut pairs: HashMap<u32, (u32, u32)> = HashMap::new();
 
     input
         .lines()
         .filter_map(split_left_right)
         .for_each(|(l, r)| {
-            insert(l, &mut left);
-            insert(r, &mut right);
+            pairs.entry(l).and_modify(|x| x.0 += 1).or_insert((0, 0));
+            pairs.entry(r).and_modify(|x| x.1 += 1).or_insert((0, 0));
         });
 
-    let mut sum = 0;
-
-    for (l, lfreq) in left.iter() {
-        if let Some(rfreq) = right.get(l) {
-            sum += l * (*lfreq as u32) * (*rfreq as u32);
-        }
-    }
+    let sum = pairs
+        .iter()
+        .map(|(v, (lfreq, rfreq))| v * lfreq * rfreq)
+        .sum();
 
     Some(sum)
 }

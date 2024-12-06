@@ -59,8 +59,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let mut rules_lt: HashMap<u32, HashSet<u32>> = HashMap::new();
-    let mut rules_gt: HashMap<u32, HashSet<u32>> = HashMap::new();
+    let mut rules: HashMap<u32, HashSet<u32>> = HashMap::new();
 
     input.lines()
         .take_while(|line| !line.is_empty())
@@ -72,12 +71,9 @@ pub fn part_two(input: &str) -> Option<u32> {
             )
         })
         .for_each(|(l, r)| {
-            rules_lt.entry(l)
+            rules.entry(l)
                 .or_default()
                 .insert(r);
-            rules_gt.entry(r)
-                .or_default()
-                .insert(l);
         });
 
     let sum = input.lines()
@@ -89,10 +85,10 @@ pub fn part_two(input: &str) -> Option<u32> {
                 .collect::<Vec<u32>>()
         })
         .filter(|list| {
-            !fast_check(list, |x, y| rules_lt[&x].contains(&y))
+            !fast_check(list, |x, y| rules[&x].contains(&y))
         })
         .map(|mut list| {
-            list.sort_by(|x, y| if rules_lt[x].contains(y) { Ordering::Less } else { Ordering::Equal });
+            list.sort_by(|x, y| if rules[x].contains(y) { Ordering::Less } else { Ordering::Equal });
             list[list.len()/2]
         })
         .fold(0u32, |acc, x| acc + x);
