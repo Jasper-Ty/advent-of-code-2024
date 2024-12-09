@@ -5,6 +5,7 @@ use std::collections::HashSet;
 use std::cmp::Ordering;
 
 // checks if list is sorted w/ mergesort strategy
+// cmp is a function that returns true if x, y are in order
 fn fast_check<F>(list: &Vec<u32>, cmp: F) -> bool
 where
     F: Fn(u32, u32) -> bool
@@ -12,12 +13,11 @@ where
     let mut size = 1;
 
     while list.chunks(size*2)
-            .filter(|pair| pair.len() >= size)
+            .filter(|pair| pair.len() > size)
             .all(|pair|
                 (&pair[..size])
                     .iter()
-                    .zip(&pair[size..])
-                    .all(|(x, y)| cmp(*x, *y))
+                    .all(|x| cmp(*x, pair[size]))
             ) && size < list.len() {
         size *= 2;
     }
@@ -25,8 +25,16 @@ where
     size >= list.len()
 }
 
+type RulesMap = HashMap<u32, HashSet<u32>>;
+/// Returns true if page x can come before page y, i.e there is no rule saying that y | x
+fn rules_cmp(x: u32, y: u32, rules: &RulesMap) -> bool {
+    rules.get(&y)
+        .map(|set| set.contains(&x))
+        .map_or(true, |x| !x)
+}
+
 pub fn part_one(input: &str) -> Option<u32> {
-    let mut rules: HashMap<u32, HashSet<u32>> = HashMap::new();
+    let mut rules: RulesMap = HashMap::new();
 
     let mut slice = input.as_bytes();
     loop {
@@ -51,7 +59,7 @@ pub fn part_one(input: &str) -> Option<u32> {
                 .filter_map(|x| x.parse::<u32>().ok())
                 .collect::<Vec<u32>>()
         })
-        .filter(|list| fast_check(list, |x, y| rules[&x].contains(&y)))
+        .filter(|list| fast_check(list, |x, y| rules_cmp(x, y, &rules)))
         .map(|list| list[list.len()/2])
         .fold(0u32, |acc, x| acc + x);
 
@@ -84,11 +92,9 @@ pub fn part_two(input: &str) -> Option<u32> {
                 .filter_map(|x| x.parse::<u32>().ok())
                 .collect::<Vec<u32>>()
         })
-        .filter(|list| {
-            !fast_check(list, |x, y| rules[&x].contains(&y))
-        })
+        .filter(|list| !fast_check(list, |x, y| rules_cmp(x, y, &rules)))
         .map(|mut list| {
-            list.sort_by(|x, y| if rules[x].contains(y) { Ordering::Less } else { Ordering::Equal });
+            list.sort_by(|x, y| if rules_cmp(*x, *y, &rules) { Ordering::Less } else { Ordering::Equal });
             list[list.len()/2]
         })
         .fold(0u32, |acc, x| acc + x);
@@ -103,12 +109,12 @@ mod tests {
     #[test]
     fn test_part_one() {
         let result = part_one(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(143));
     }
 
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(123));
     }
 }

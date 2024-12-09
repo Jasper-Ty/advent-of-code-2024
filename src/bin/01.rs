@@ -32,8 +32,8 @@ pub fn part_two(input: &str) -> Option<u32> {
         .lines()
         .filter_map(split_left_right)
         .for_each(|(l, r)| {
-            pairs.entry(l).and_modify(|x| x.0 += 1).or_insert((0, 0));
-            pairs.entry(r).and_modify(|x| x.1 += 1).or_insert((0, 0));
+            pairs.entry(l).and_modify(|x| x.0 += 1).or_insert((1, 0));
+            pairs.entry(r).and_modify(|x| x.1 += 1).or_insert((0, 1));
         });
 
     let sum = pairs
@@ -51,12 +51,12 @@ mod tests {
     #[test]
     fn test_part_one() {
         let result = part_one(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(11));
     }
 
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(31));
     }
 }
