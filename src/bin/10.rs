@@ -37,23 +37,21 @@ pub fn part_one(input: &str) -> Option<u32> {
 pub fn part_two(input: &str) -> Option<u32> {
     let map = Map::new(input);
 
-    let mut stack: Vec<(u8, (usize, usize))> = vec![];
+    let mut stack: Vec<(usize, usize)> = map.data.iter()
+        .enumerate()
+        .filter_map(|(i, x)| (*x == b'9').then(|| map.pos(i)))
+        .collect();
+
     let mut sum = 0;
 
-    for i in 0..map.data.len() {
-        if map.data[i] == b'9' {
-            stack.push((b'9', map.pos(i)));
-        }
-    }
-
-    while let Some((level, (x, y))) = stack.pop() {
-        if level == b'0' {
-            sum += 1;
-        } else {
-            for dir in [(1, 0), (0, 1), (-1, 0), (0, -1)] {
-                if let Some((x, y)) = map.step((x, y), dir) {
-                    if map[(x, y)] == level - 1 {
-                        stack.push((level - 1, (x, y)));
+    while let Some((x, y)) = stack.pop() {
+        for dir in [(1, 0), (0, 1), (-1, 0), (0, -1)] {
+            if let Some((z, w)) = map.step((x, y), dir) {
+                if map[(z, w)] == map[(x, y)] - 1 {
+                    if map[(z, w)] == b'0' {
+                        sum += 1;
+                    } else {
+                        stack.push((z, w));
                     }
                 }
             }
