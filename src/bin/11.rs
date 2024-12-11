@@ -42,20 +42,13 @@ fn memoized_compute(stone: Stone, map: &mut HashMap<Stone, u128>) -> u128 {
 }
 
 pub fn part_one(input: &str) -> Option<u128> {
-    let mut stack: Vec<Stone> = input.split_ascii_whitespace()
-        .filter_map(|s| s.parse::<u64>().ok())
-        .map(|num| Stone {
-            num,
-            depth: DEPTH_PART_ONE
-        })
-        .collect();
-
     let mut map: HashMap<Stone, u128> = HashMap::new();
-    let mut sum = 0;
 
-    while let Some(stone) = stack.pop() {
-        sum += memoized_compute(stone, &mut map)
-    }
+    let sum = input.split_ascii_whitespace()
+        .filter_map(|s| s.parse::<u64>().ok())
+        .map(|num| Stone { num, depth: DEPTH_PART_ONE })
+        .map(|stone| memoized_compute(stone, &mut map))
+        .sum();
 
     Some(sum)
 }
@@ -63,20 +56,13 @@ pub fn part_one(input: &str) -> Option<u128> {
 const DEPTH_PART_TWO: u64 = 75;
 
 pub fn part_two(input: &str) -> Option<u128> {
-    let mut stack: Vec<Stone> = input.split_ascii_whitespace()
-        .filter_map(|s| s.parse::<u64>().ok())
-        .map(|num| Stone {
-            num,
-            depth: DEPTH_PART_TWO
-        })
-        .collect();
-
     let mut map: HashMap<Stone, u128> = HashMap::new();
-    let mut sum = 0;
 
-    while let Some(stone) = stack.pop() {
-        sum += memoized_compute(stone, &mut map)
-    }
+    let sum = input.split_ascii_whitespace()
+        .filter_map(|s| s.parse::<u64>().ok())
+        .map(|num| Stone { num, depth: DEPTH_PART_TWO })
+        .map(|stone| memoized_compute(stone, &mut map))
+        .sum();
 
     Some(sum)
 }
