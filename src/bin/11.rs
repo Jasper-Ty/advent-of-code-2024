@@ -10,7 +10,7 @@ struct Stone {
     depth: u64
 }
 
-fn memoized_compute(stone: Stone, map: &mut HashMap<Stone, u128>) -> u128 {
+fn memoized_compute(stone: Stone, map: &mut HashMap<Stone, u64>) -> u64 {
     if map.contains_key(&stone) {
         map[&stone]
     } else if stone.depth == 0 {
@@ -41,8 +41,8 @@ fn memoized_compute(stone: Stone, map: &mut HashMap<Stone, u128>) -> u128 {
     }
 }
 
-pub fn part_one(input: &str) -> Option<u128> {
-    let mut map: HashMap<Stone, u128> = HashMap::new();
+pub fn part_one(input: &str) -> Option<u64> {
+    let mut map: HashMap<Stone, u64> = HashMap::new();
 
     let sum = input.split_ascii_whitespace()
         .filter_map(|s| s.parse::<u64>().ok())
@@ -55,8 +55,8 @@ pub fn part_one(input: &str) -> Option<u128> {
 
 const DEPTH_PART_TWO: u64 = 75;
 
-pub fn part_two(input: &str) -> Option<u128> {
-    let mut map: HashMap<Stone, u128> = HashMap::new();
+pub fn part_two(input: &str) -> Option<u64> {
+    let mut map: HashMap<Stone, u64> = HashMap::new();
 
     let sum = input.split_ascii_whitespace()
         .filter_map(|s| s.parse::<u64>().ok())
