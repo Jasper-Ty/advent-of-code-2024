@@ -65,7 +65,7 @@ impl Map {
     }
 }
 
-use std::{iter::once, ops::{Index, IndexMut}};
+use std::ops::{Index, IndexMut};
 impl Index<(usize, usize)> for Map {
     type Output = u8;
 
