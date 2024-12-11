@@ -26,18 +26,15 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let mut pairs: HashMap<u32, (u32, u32)> = HashMap::new();
-
-    input
+    let sum = input
         .lines()
         .filter_map(split_left_right)
-        .for_each(|(l, r)| {
-            pairs.entry(l).and_modify(|x| x.0 += 1).or_insert((1, 0));
-            pairs.entry(r).and_modify(|x| x.1 += 1).or_insert((0, 1));
-        });
-
-    let sum = pairs
-        .iter()
+        .fold(HashMap::new(), |mut acc, (l, r)| {
+            acc.entry(l).or_insert((0, 0)).0 += 1;
+            acc.entry(r).or_insert((0, 0)).1 += 1;
+            acc
+        })
+        .into_iter()
         .map(|(v, (lfreq, rfreq))| v * lfreq * rfreq)
         .sum();
 
